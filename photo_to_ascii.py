@@ -17,8 +17,21 @@ def get_image(path):
     return Image.open(path)
 
 #@preview
-def resize_image(image, width, height):
-    return image.resize((width, height))
+def resize_image(image):
+    maximum_width = 200
+    maximum_height = 100
+    
+    width, height = image.size
+    if width > maximum_width or height > maximum_height:
+        aspect_ratio = width / height
+        if width > height:
+            new_width = maximum_width
+            new_height = int(maximum_width / aspect_ratio)
+        else:
+            new_height: maximum_height
+            new_width = int(maximum_height * aspect_ratio)    
+
+    return image.resize((new_width, new_height))
 
 #@preview
 def noir(image):
@@ -37,7 +50,7 @@ def main(path, invert=False):
     
     # resizing and turing image into grayscale
     NOIR_IMG = noir(DEFAULT_IMG)
-    resized_image = resize_image(NOIR_IMG, 100,100)
+    resized_image = resize_image(NOIR_IMG)
     IMG_SIZE = resized_image.size
 
     for y in range(IMG_SIZE[1]):

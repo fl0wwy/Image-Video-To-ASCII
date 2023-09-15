@@ -9,13 +9,28 @@ def load_video(path):
         raise Exception("Error opening file!")
     return cap
 
+def resize_frame(image):
+    max_width = 200
+    max_height = 100
+
+    # Calculate the new dimensions while preserving the aspect ratio
+    width = image.shape[0]
+    height = image.shape[1]
+    if width > max_width or height > max_height:
+        aspect_ratio = width / height
+        if width > height:
+            new_width = max_width
+            new_height = int(max_width / aspect_ratio)
+        else:
+            new_height = max_height
+            new_width = int(max_height * aspect_ratio)
+
+    return cv2.resize(image, (new_width, new_height))  
+
 def main(path, invert):
     # opening video and getting its fps
     video = load_video(path)
     video_fps = int(video.get(cv2.CAP_PROP_FPS))
-    
-    # resizing video to fit algorithm
-    resize_dimensions = [100,50]
 
     # pixel intensity to character converter
     ASCII_DENSITY = " ._-=+*#%@"
@@ -30,10 +45,12 @@ def main(path, invert):
         ret, frame = video.read()
         if not ret:
             break
-
+                
         # manipulating frames
         gray_scale_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        resized_frame = cv2.resize(gray_scale_frame, tuple(resize_dimensions)) 
+        resized_frame = resize_frame(gray_scale_frame)
+
+        resize_dimensions = (resized_frame.shape[0], resized_frame.shape[1])
 
         #printing frames to console 
         os.system("cls") # clear console   
