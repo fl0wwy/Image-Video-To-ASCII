@@ -14,8 +14,7 @@ def resize_frame(image):
     max_height = 100
 
     # Calculate the new dimensions while preserving the aspect ratio
-    width = image.shape[0]
-    height = image.shape[1]
+    height, width = image.shape
     if width > max_width or height > max_height:
         aspect_ratio = width / height
         if width > height:
@@ -27,18 +26,18 @@ def resize_frame(image):
 
     return cv2.resize(image, (new_width, new_height))  
 
+# pixel intensity to character converter
+ASCII_DENSITY = " ._-=+*#%@"
+def brightness_mapping(brightness, invert):
+    order = ASCII_DENSITY if invert == False else ASCII_DENSITY[::-1]
+    length = len(order) - 1
+    mapped_value = floor(brightness / 255 * length) 
+    return order[mapped_value] 
+
 def main(path, invert):
     # opening video and getting its fps
     video = load_video(path)
     video_fps = int(video.get(cv2.CAP_PROP_FPS))
-
-    # pixel intensity to character converter
-    ASCII_DENSITY = " ._-=+*#%@"
-    def brightness_mapping(brightness, invert=invert):
-        order = ASCII_DENSITY if invert == False else ASCII_DENSITY[::-1]
-        length = len(order) - 1
-        mapped_value = floor(brightness / 255 * length) 
-        return order[mapped_value] 
 
     while True:
         # reading video frames
@@ -54,10 +53,10 @@ def main(path, invert):
 
         #printing frames to console 
         os.system("cls") # clear console   
-        for y in range(resize_dimensions[1]):
+        for y in range(resize_dimensions[0]):
             line = []
-            for x in range(resize_dimensions[0]):
-                line.append(brightness_mapping(resized_frame[y, x], False))
+            for x in range(resize_dimensions[1]):
+                line.append(brightness_mapping(resized_frame[y][x], invert))
             print("".join(line))     
 
         delay = int(1000 / video_fps) #running video according to its original fps
